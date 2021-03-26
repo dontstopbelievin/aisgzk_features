@@ -9,7 +9,8 @@ class LandController extends Controller
 {
 	public function get_data(){
 		try{
-			$lands = Land::select('feature')->limit(3)->get();
+			// $lands = Land::select('feature')->limit(3)->get();
+			$lands = Land::select('feature')->get();
 			$geojson = new \stdClass;
 			$geojson->type = 'FeatureCollection';
 			$geojson->features = [];
