@@ -78,7 +78,7 @@ class LandController extends Controller
 		$feature->geometry->coordinates = [];
 		$arr_coords = [];
 		foreach ($item->Geometry->NewGeometry->Vertexes as $elem) {
-			$arr_coords[] = [str_replace(',', '.', $elem->X), str_replace(',', '.', $elem->Y)];
+			$arr_coords[] = [(float)str_replace(',', '.', $elem->X), (float)str_replace(',', '.', $elem->Y)];
 		}
 		$feature->geometry->coordinates[] = $arr_coords;
 		$feature->properties = new \stdClass;
