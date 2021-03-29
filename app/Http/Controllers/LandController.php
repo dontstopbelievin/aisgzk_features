@@ -9,8 +9,8 @@ class LandController extends Controller
 {
 	public function get_data(){
 		try{
-			$lands = Land::select('feature')->limit(3)->get();
-			// $lands = Land::select('feature')->get();
+			// $lands = Land::select('feature')->limit(3)->get();
+			$lands = Land::select('feature')->get();
 			$geojson = new \stdClass;
 			$geojson->type = 'FeatureCollection';
 			$geojson->features = [];
@@ -25,6 +25,7 @@ class LandController extends Controller
 
     public function from_xml_file(){
     	try {
+    		require_once("coordinates.php");
     		$files = array_diff(scandir('/var/www/aisgzk_data/public/xml_files'), array('.', '..'));
     		$insert = 0;
 			$update = 0;
@@ -78,15 +79,18 @@ class LandController extends Controller
 		$feature->type = 'Feature';
 		$feature->geometry = new \stdClass;
 		$feature->geometry->type = 'Polygon';
-		$spatial_reference = new \stdClass;
-		$spatial_reference->wkid = 32642;
-		$spatial_reference->latestWkid = 32642;
-		$feature->spatialReference = $spatial_reference;
+		// $spatial_reference = new \stdClass;
+		// $spatial_reference->wkid = 32642;
+		// $spatial_reference->latestWkid = 32642;
+		// $feature->spatialReference = $spatial_reference;
 		$feature->geometry->coordinates = [];
-		$feature->geometry->spatialReference = $spatial_reference;
+		// $feature->geometry->spatialReference = $spatial_reference;
 		$arr_coords = [];
 		foreach ($item->Geometry->NewGeometry->Vertexes as $elem) {
-			$arr_coords[] = [(float)str_replace(',', '.', $elem->X), (float)str_replace(',', '.', $elem->Y)];
+			$coords = json_decode(utm2ll((float)str_replace(',', '.', $elem->X),(float)str_replace(',', '.', $elem->Y),42,true), true);
+			$x = $coords['attr']['lon'];
+			$y = $coords['attr']['lat'];
+			$arr_coords[] = [$x, $y];
 		}
 		$feature->geometry->coordinates[] = $arr_coords;
 		$feature->properties = new \stdClass;
