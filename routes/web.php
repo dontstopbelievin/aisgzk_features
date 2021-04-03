@@ -16,3 +16,4 @@ use App\Http\Controllers\LandController;
 Route::get('/', function () {return view('welcome');});
 Route::get('/services/from_xml_file', [LandController::class, 'from_xml_file']);
 Route::get('/services/get_geo_data_aisgzk', [LandController::class, 'get_data']);
+Route::get('/services/get_data', [LandController::class, 'get_data2']);

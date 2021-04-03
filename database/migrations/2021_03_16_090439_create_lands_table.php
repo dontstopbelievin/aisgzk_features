@@ -17,6 +17,7 @@ class CreateLandsTable extends Migration
             $table->id();
             $table->bigInteger('CadNumber')->unique();
             $table->json("feature")->nullable();
+            $table->json("feature_gps")->nullable();
             $table->dateTime("ActualDate")->nullable();
             $table->json("SemanticData")->nullable();
             $table->json("Geometry")->nullable();
