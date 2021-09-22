@@ -2,6 +2,8 @@
 /public/hot
 /public/storage
 /public/xml_files
+/public/lands_original.json
+/public/lands.json
 /storage/*.key
 /vendor
 .env
