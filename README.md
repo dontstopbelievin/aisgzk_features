@@ -16,7 +16,7 @@
 
 ## Routes
 - '/services/from_xml_file' - с xml файлов запись в базу
-- '/services/get_geo_data_aisgzk' - данные без сдвига
-- '/services/get_data' - данные со сдвигом
-- '/queries/get_data' - данные без сдвига
-- '/queries/get_data2' - данные со сдвигом
+- '/services/get_geo_data_aisgzk' - данные без сдвига координат
+- '/services/get_data' - данные со сдвигом координат
+- '/queries/get_data' - данные без сдвига координат
+- '/queries/get_data2' - данные со сдвигом координат
