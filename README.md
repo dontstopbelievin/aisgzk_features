@@ -20,10 +20,10 @@ Routes:
 ## Installation
 - composer install
 - cp env.example .env
-- Приписать доступ к базе в .env
-- Создать базу данных с названием как в .env
+- приписать доступ к базе в .env
+- создать базу данных с названием как в .env
 - php artisan migrate
 
 ## Run
 - php artisan serve<br/>
-Запускает сервер на http://localhost:8000
+запускает сервер на http://localhost:8000
