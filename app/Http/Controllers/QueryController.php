@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Query;
 use Illuminate\Support\Facades\Validator;
+include("proj4php/vendor/autoload.php");
+use proj4php\Proj4php;
+use proj4php\Proj;
+use proj4php\Point;
 
 class QueryController extends Controller
 {
     public function get_data(){
         try{
-            require_once("coordinates.php");
             ini_set('memory_limit', '-1');
-
             $geojson = new \stdClass;
             $geojson->type = 'FeatureCollection';
             // $spatial_reference = new \stdClass;
@@ -67,6 +69,12 @@ class QueryController extends Controller
 
     public function get_data2(){
         try{
+            // Initialise Proj4
+            $proj4 = new Proj4php();
+            // Create two different projections.
+            $projFrom    = new Proj('EPSG:32642', $proj4);
+            $projTo  = new Proj('EPSG:4326', $proj4);
+
             ini_set('memory_limit', '-1');
             $esrijson = new \stdClass;
             $esrijson->displayFieldName = 'KAD_NOMER';
@@ -79,8 +87,8 @@ class QueryController extends Controller
             $esrijson->fieldAliases = $fieldAliases;
             $esrijson->geometryType = 'esriGeometryPolygon';
             $spatial_reference = new \stdClass;
-            $spatial_reference->wkid = 32642;
-            $spatial_reference->latestWkid = 32642;
+            $spatial_reference->wkid = 4326;
+            $spatial_reference->latestWkid = 4326;
             $esrijson->spatialReference = $spatial_reference;
             $f1 = new \stdClass;
             $f1->name = 'OBJECTID';
@@ -108,16 +116,37 @@ class QueryController extends Controller
 
             $query = \DB::table('queries')->select('feature');
             // $query->where('id', '<', 10);
+            // $query->where('CadNumber', '213201354690');
             // $query->where('id', '<', 20000);
             // $query->whereBetween('id', [10000, 25000]);
-            $query->orderBy('id')->chunk(5000, function ($kadastrs) use (&$esrijson) {
+            // $query->orderBy('id')->chunk(5000, function ($kadastrs) use (&$esrijson) {
+            $query->orderBy('id')->chunk(5000, function ($kadastrs) use (&$esrijson, &$projFrom, &$projTo, &$proj4) {
                 foreach ($kadastrs as $item) {
                     $feature = json_decode($item->feature);
                     unset($feature->attributes->OBJECTID);
+                    $arr_coords = [];
+                    foreach ($feature->geometry->rings as $ring) {
+                        $sub_array = [];
+                        foreach ($ring as $item) {
+                            $x = (float)$item[0];
+                            $y = (float)$item[1];
+                            $pointSrc = new Point($x, $y, $projFrom);
+                            $pointDest = $proj4->transform($projTo, $pointSrc);
+                            $coords = explode(" ", $pointDest->toShortString());
+                            $x = (float)$coords[0]-0.00024752;
+                            $y = (float)$coords[1]+0.00066566;
+                            // $x -= 19.7517; -0,00024752
+                            // $y += 73.5397;0,00066566
+                            // $arr_coords[] = [(float)$coords[0], (float)$coords[1]];
+                            $sub_array[] = [$x, $y];
+                        }
+                        $arr_coords[] = $sub_array;
+                    }
+                    $feature->geometry->rings = $arr_coords;
                     array_push($esrijson->features, $feature);
                 }
             });
-            file_put_contents('lands_original.json', json_encode($esrijson));
+            file_put_contents('lands_4326.json', json_encode($esrijson));
             // return response()->json($esrijson, 200);
             return response()->json('ok', 200);
         } catch (Exception $e) {
